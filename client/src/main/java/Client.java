@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
     public static String host;
@@ -12,11 +13,24 @@ public class Client {
     private static OutputStream out;
     private static InputStream in;
 
-    public static void connect(String hostage, int socketPort) {
+    public static boolean connect(String hostage, int socketPort) {
         host = hostage;
         port = socketPort;
         boolean scanning = true;
-        while (scanning) {
+        boolean toContinue = true;
+        long start = System.currentTimeMillis();
+        while (scanning && toContinue) {
+            if (System.currentTimeMillis() - start >= 100000){
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Do you want to continue waiting? \"no\" for no, anything for yes");
+                String decision = sc.nextLine();
+                if (decision.equals("no")){
+                    toContinue = false;
+                    return toContinue;
+                }
+                start = System.currentTimeMillis();
+            }
+
             try {
                 socket = new Socket(host, port);
                 scanning = false;
@@ -24,14 +38,15 @@ public class Client {
                 out = socket.getOutputStream();
                 in = socket.getInputStream();
             } catch (Exception e) {
-                System.out.println("Connection with the server is failed, waiting and trying again...");
+                App.logger.warn("Connection with the server is failed, waiting and trying again...");
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException ie) {
-                    System.out.println(ie.getMessage());
+                    App.logger.warn(ie.getMessage());
                 }
             }
         }
+        return true;
     }
 
     public static void sendData(Command<?> command) throws IOException {

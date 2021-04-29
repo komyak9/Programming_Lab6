@@ -17,31 +17,24 @@ public class ConsoleManager {
                     if (!scanner.hasNextLine())
                         throw new Exception("There is no line. Program's going to be finished.");
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                    App.logger.error(ex.getMessage());
                     System.exit(0);
                 }
             } while ((command = commandValidator.validateData(scanner.nextLine(), scanner)) == null);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            App.logger.warn(e.getMessage());
         }
         return command;
     }
 
-    public void communicate(String host, int port) throws IOException {
+    public void communicate(String host, int port) throws IOException, ClassNotFoundException {
         Command<?> command;
         while (!Client.getSocket().isOutputShutdown()) {
-            try {
-                command = this.readCommand();
-                if (command.getClass() == ExitCommand.class)
-                    break;
-                Client.sendData(command);
-                System.out.println("Server's response:" + Client.receiveData());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                //System.out.println("Connection is aborted! Trying to reconnect...");
-                Client.getOut().flush();
-                Client.connect(host, port);
-            }
+            command = this.readCommand();
+            if (command.getClass() == ExitCommand.class)
+                break;
+            Client.sendData(command);
+            System.out.println("Server's response:" + Client.receiveData());
         }
     }
 }

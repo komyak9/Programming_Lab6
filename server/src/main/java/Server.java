@@ -9,6 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
 
 public class Server {
@@ -16,24 +17,30 @@ public class Server {
     private static SocketAddress socketAddress;
     private static ServerSocketChannel serverSocketChannel;
 
-    public static void run(int port) throws IOException, ClassNotFoundException {
+    public static void run(int port) throws IOException{
         socketAddress = new InetSocketAddress(port);
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(socketAddress);
         serverSocketChannel.configureBlocking(false);
-        //selector = Selector.open();
-        //serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
     }
 
-    public static void processRequest(CollectionManager collectionManager) throws IOException, ClassNotFoundException {
+    public static boolean processRequest(CollectionManager collectionManager, long start) throws IOException, ClassNotFoundException {
+        boolean toContinue = true;
         Command<?> command;
         selector = Selector.open();
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-
-
         while (true) {
+            if (System.currentTimeMillis() - start >= 100000){
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Do you want to continue waiting? \"no\" for no, anything for yes");
+                String decision = sc.nextLine();
+                if (decision.equals("no"))
+                    toContinue = false;
+                return toContinue;
+            }
+
             System.out.println("Waiting for select...");
-            selector.select();
+            selector.select(5000);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
 
             for (Iterator iter = selectedKeys.iterator(); iter.hasNext(); ) {
@@ -63,5 +70,6 @@ public class Server {
                 iter.remove();
             }
         }
+        //return toContinue;
     }
 }

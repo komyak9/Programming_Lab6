@@ -19,7 +19,7 @@ public class CollectionManager {
             if (!file.exists())
                 throw new FileNotFoundException();
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            App.logger.error(ex.getMessage());
         }
         fillCollection();
     }
@@ -39,8 +39,8 @@ public class CollectionManager {
 
             System.out.println("Data from the file were successfully downloaded.");
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            System.out.println("Error in xml file data. Please, check the data in the file.");
+            App.logger.error(ex.getMessage());
+            App.logger.error("Error in xml file data. Please, check the data in the file.");
         }
     }
 
@@ -61,7 +61,7 @@ public class CollectionManager {
                 buffer = line.getBytes();
                 fstream.write(buffer);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                App.logger.error(e.getMessage());
             }
         }
     }
