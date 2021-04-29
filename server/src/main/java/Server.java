@@ -17,7 +17,7 @@ public class Server {
     private static SocketAddress socketAddress;
     private static ServerSocketChannel serverSocketChannel;
 
-    public static void run(int port) throws IOException{
+    public static void run(int port) throws IOException, ClassNotFoundException {
         socketAddress = new InetSocketAddress(port);
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(socketAddress);
@@ -30,7 +30,8 @@ public class Server {
         selector = Selector.open();
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         while (true) {
-            if (System.currentTimeMillis() - start >= 100000){
+            long current = System.currentTimeMillis();
+            if (current - start >= 500000){
                 Scanner sc = new Scanner(System.in);
                 System.out.println("Do you want to continue waiting? \"no\" for no, anything for yes");
                 String decision = sc.nextLine();
@@ -40,7 +41,7 @@ public class Server {
             }
 
             System.out.println("Waiting for select...");
-            selector.select(5000);
+            selector.select(100000);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
 
             for (Iterator iter = selectedKeys.iterator(); iter.hasNext(); ) {

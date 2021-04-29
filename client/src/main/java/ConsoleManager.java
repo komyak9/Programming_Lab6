@@ -27,14 +27,15 @@ public class ConsoleManager {
         return command;
     }
 
-    public void communicate(String host, int port) throws IOException, ClassNotFoundException {
+    public boolean communicate(String host, int port) throws IOException, ClassNotFoundException {
         Command<?> command;
         while (!Client.getSocket().isOutputShutdown()) {
             command = this.readCommand();
             if (command.getClass() == ExitCommand.class)
-                break;
+                return false;
             Client.sendData(command);
             System.out.println("Server's response:" + Client.receiveData());
         }
+        return true;
     }
 }

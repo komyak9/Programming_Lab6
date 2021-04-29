@@ -13,6 +13,16 @@ public class RemoveAnyBySalaryCommand extends Command<Float> implements Serializ
 
     @Override
     public void execute(LinkedList<Worker> collection) {
+        try {
+            if (collection.stream().noneMatch(worker -> worker.getSalary() == argument.getArgument()))
+                throw new Exception("There is no worker with such salary. Nothing to remove.");
 
+            Worker worker = collection.stream().filter(worker1 -> worker1.getSalary() == argument.getArgument()).findFirst().get();
+            collection.remove(worker);
+            idGenerator.remove(worker.getId());
+            this.setMessage("The elements are removed.");
+        } catch (Exception e) {
+            this.setMessage(e.getMessage());
+        }
     }
 }

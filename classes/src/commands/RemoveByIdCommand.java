@@ -4,7 +4,9 @@ import arguments.Argument;
 import content.Worker;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class RemoveByIdCommand extends Command<Integer> implements Serializable {
     public RemoveByIdCommand(Argument<Integer> argument) {
@@ -14,9 +16,12 @@ public class RemoveByIdCommand extends Command<Integer> implements Serializable 
     @Override
     public void execute(LinkedList<Worker> collection) {
         try {
-            if (collection.stream().noneMatch(worker -> worker.getSalary() == argument.getArgument()))
-                throw new Exception("There is no worker with such salary. Nothing to remove.");
-            collection.stream().filter(worker -> worker.getSalary() == argument.getArgument()).map(collection::remove);
+            if (collection.stream().noneMatch(worker -> worker.getId() == argument.getArgument()))
+                throw new Exception("There is no worker with such id. Nothing to remove.");
+
+            Collection<?> toRemove = collection.stream().filter(workerToUpdate -> workerToUpdate.getId() == argument.getArgument()).collect(Collectors.toList());
+            collection.removeAll(toRemove);
+            idGenerator.remove(argument.getArgument());
             this.setMessage("The elements are removed.");
         } catch (Exception e) {
             this.setMessage(e.getMessage());

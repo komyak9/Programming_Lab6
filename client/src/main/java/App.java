@@ -14,7 +14,7 @@ public class App {
         try {
             while (toContinue) {
                 try {
-                    consoleManager.communicate(host, port);
+                    toContinue = consoleManager.communicate(host, port);
                 } catch (Exception e) {
                     logger.warn("Connection is aborted! Trying to reconnect...");
                     try {

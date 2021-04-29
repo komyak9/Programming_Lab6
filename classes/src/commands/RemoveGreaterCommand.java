@@ -4,7 +4,9 @@ import arguments.Argument;
 import content.Worker;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class RemoveGreaterCommand extends Command<Worker> implements Serializable {
     public RemoveGreaterCommand(Argument<Worker> argument) {
@@ -16,7 +18,11 @@ public class RemoveGreaterCommand extends Command<Worker> implements Serializabl
         try {
             if (collection.stream().noneMatch(worker -> argument.getArgument().compareTo(worker) < 0))
                 throw new Exception("There is no workers greater. Nothing to remove.");
-            collection.stream().filter(worker -> argument.getArgument().compareTo(worker) < 0).map(collection::remove);
+
+            Collection<?> toRemove = collection.stream().filter(workerToUpdate -> workerToUpdate.compareTo(argument.getArgument()) > 0).collect(Collectors.toList());
+            collection.removeAll(toRemove);
+            idGenerator.clear();
+            collection.forEach(worker -> idGenerator.addId(worker.getId()));
             this.setMessage("The elements are removed.");
         } catch (Exception e) {
             this.setMessage(e.getMessage());

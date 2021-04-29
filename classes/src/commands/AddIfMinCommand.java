@@ -24,8 +24,10 @@ public class AddIfMinCommand extends Command<Worker> implements Serializable {
             if (worker.compareTo(collection.stream().min(Comparator.comparing(Worker::getName)).get()) < 0) {
                 collection.add(worker);
                 this.setMessage("The new element is the min. It's added to the collection.");
-            } else
+            } else{
                 this.setMessage("The new element is not the min. Nothing changed.");
+                idGenerator.remove(worker.getId());
+            }
         } catch (Exception ex) {
             this.setMessage(ex.getMessage());
         }

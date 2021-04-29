@@ -5,7 +5,9 @@ import content.Position;
 import content.Worker;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class RemoveAllByPositionCommand extends Command<Position> implements Serializable {
     public RemoveAllByPositionCommand(Argument<Position> argument) {
@@ -17,7 +19,11 @@ public class RemoveAllByPositionCommand extends Command<Position> implements Ser
         try {
             if (collection.stream().noneMatch(worker -> worker.getPosition().equals(argument.getArgument())))
                 throw new Exception("There is no worker with such position. Nothing to remove.");
-            collection.stream().filter(worker -> worker.getPosition().equals(argument.getArgument())).map(collection::remove);
+
+            Collection<?> toRemove = collection.stream().filter(worker -> worker.getPosition() == argument.getArgument()).collect(Collectors.toList());
+            collection.removeAll(toRemove);
+            idGenerator.clear();
+            collection.forEach(worker -> idGenerator.addId(worker.getId()));
             this.setMessage("The elements are removed.");
         } catch (Exception e) {
             this.setMessage(e.getMessage());

@@ -5,7 +5,9 @@ import arguments.IdArgument;
 import content.Worker;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class UpdateIdCommand extends Command<Integer> implements Serializable {
     public UpdateIdCommand(Argument<Integer> argument) {
@@ -26,7 +28,9 @@ public class UpdateIdCommand extends Command<Integer> implements Serializable {
                     ((IdArgument) argument).getElement().getArgument().getEndDate(),
                     ((IdArgument) argument).getElement().getArgument().getPosition(),
                     ((IdArgument) argument).getElement().getArgument().getOrganization());
-            collection.stream().filter(workerToUpdate -> worker.getId() == argument.getArgument()).map(collection::remove);
+
+            Collection<?> toRemove = collection.stream().filter(workerToUpdate -> workerToUpdate.getId() == argument.getArgument()).collect(Collectors.toList());
+            collection.removeAll(toRemove);
             collection.add(worker);
             this.setMessage("The worker is replaced successfully.");
         } catch (Exception ex) {
