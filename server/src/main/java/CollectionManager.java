@@ -65,4 +65,8 @@ public class CollectionManager {
             }
         }
     }
+
+    public LinkedList<Worker> getWorkersList() {
+        return workersList;
+    }
 }
