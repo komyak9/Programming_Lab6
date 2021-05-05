@@ -31,7 +31,7 @@ public class Server {
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         while (true) {
             long current = System.currentTimeMillis();
-            if (current - start >= 500000){
+            if (current - start >= 100000){
                 Scanner sc = new Scanner(System.in);
                 System.out.println("Do you want to continue waiting? \"no\" for no, anything for yes");
                 String decision = sc.nextLine();
@@ -41,7 +41,7 @@ public class Server {
             }
 
             System.out.println("Waiting for select...");
-            selector.select(100000);
+            selector.select(50000);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
 
             for (Iterator iter = selectedKeys.iterator(); iter.hasNext(); ) {

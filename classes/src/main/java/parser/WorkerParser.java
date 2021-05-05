@@ -3,10 +3,8 @@ package parser;
 import content.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -19,117 +17,6 @@ import java.util.*;
  * @autor komyak9
  */
 public class WorkerParser implements Serializable {
-    public LinkedList<Worker> parseXMLToObject(File file) throws Exception {
-        Scanner scanner = new Scanner(file);
-        LinkedList<String> data = new LinkedList<>();
-        XMLToObjectParser parser = new XMLToObjectParser();
-        LinkedList<Worker> result = new LinkedList<>();
-
-        String workerName = null;
-        Coordinates coordinates;
-        long coordinatesX = -1000;
-        int coordinatesY = -1000;
-        float salary = 0;
-
-        LocalDateTime startDate = null;
-        Date endDate = null;
-
-        Position position = null;
-        Organization organization;
-        int annualTurnover = 0;
-        OrganizationType type = null;
-        Address address;
-        String zipCode = null;
-
-        Location location;
-        String locationName = null;
-        Integer locationX = null;
-        int locationY = 0, id = 0;
-        ZonedDateTime creationDate = null;
-
-
-        while (scanner.hasNextLine()) {
-            data.add(scanner.nextLine());
-        }
-
-        try {
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(i).contains("<worker>")) {
-                    for (int j = i + 1; j < data.size() && !data.get(i).contains("</worker>"); j++) {
-                        if (data.get(j).contains("<name>"))
-                            workerName = parser.getSingleValue("name", data.get(j));
-                        else if (data.get(j).contains("<id>"))
-                            id = Integer.parseInt(parser.getSingleValue("id", data.get(j)));
-                        else if (data.get(j).contains("<creationDate>"))
-                            creationDate = ZonedDateTime.parse(parser.getSingleValue("creationDate", data.get(j)));
-                        else if (data.get(j).contains("<coordinates>")) {
-                            coordinatesX = Long.parseLong(parser.getMultiValues("coordinates", data, j).get("x"));
-                            coordinatesY = Integer.parseInt(parser.getMultiValues("coordinates", data, j).get("y"));
-                        } else if (data.get(j).contains("<startDate>")) {
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                            startDate = LocalDateTime.parse(parser.getSingleValue("startDate", data.get(j)), formatter);
-                        } else if (data.get(j).contains("<endDate>"))
-                            endDate = new SimpleDateFormat("dd-MM-yyyy").parse(parser.getSingleValue("endDate", data.get(j)));
-                        else if (data.get(j).contains("<salary>"))
-                            salary = Float.parseFloat(parser.getSingleValue("salary", data.get(j)));
-                        else if (data.get(j).contains("<position>"))
-                            position = Position.valueOf(parser.getSingleValue("position", data.get(j)));
-                        else if (data.get(j).contains("<organization>")) {
-                            for (int k = j + 1; k < data.size() && !data.get(k).contains("</organization>"); k++) {
-                                if (data.get(k).contains("<annualTurnover>"))
-                                    annualTurnover = Integer.parseInt(parser.getSingleValue("annualTurnover", data.get(k)));
-                                else if (data.get(k).contains("<type>"))
-                                    type = OrganizationType.valueOf(parser.getSingleValue("type", data.get(k)));
-                                else if (data.get(k).contains("<address>")) {
-                                    for (int l = k + 1; l < data.size() && !data.get(l).contains("</address>"); l++) {
-                                        if (data.get(l).contains("<zipCode>"))
-                                            zipCode = parser.getSingleValue("zipCode", data.get(l));
-                                        else if (data.get(l).contains("<location>")) {
-                                            locationName = parser.getMultiValues("location", data, l).get("name");
-                                            locationX = Integer.parseInt(parser.getMultiValues("location", data, l).get("x"));
-                                            locationY = Integer.parseInt(parser.getMultiValues("location", data, l).get("y"));
-                                        }
-                                        k = l;
-                                    }
-                                }
-                                j = k;
-                            }
-                        }
-                        i = j;
-                    }
-                    location = new Location(locationX, locationY, locationName);
-                    address = new Address(zipCode, location);
-                    organization = new Organization(annualTurnover, type, address);
-                    coordinates = new Coordinates(coordinatesX, coordinatesY);
-                    result.add(new Worker(id, creationDate, workerName, coordinates, salary, startDate, endDate, position, organization));
-                }
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            throw ex;
-        }
-        return result;
-    }
-
-    public void parseObjectToXML(File file, Worker worker) throws IllegalAccessException, IOException {
-        Field[] fields = worker.getClass().getDeclaredFields();
-        String data = "";
-        data += "Element name: " + worker.getClass() + "\n";
-        String lineToAdd = "";
-        for (Field field : fields) {
-            if (Modifier.isPrivate(field.getModifiers())) {
-                field.setAccessible(true);
-                lineToAdd = "Tag: " + field.getName() + ", value: " + field.get(worker) + '\n';
-                if (lineToAdd.contains("town")) {
-                    lineToAdd = lineToAdd.replace("town", "location");
-                }
-                data += lineToAdd;
-            }
-        }
-        ObjectToXMLParser parser = new ObjectToXMLParser();
-        parser.writeDataToXMLFile(file, data, "worker");
-    }
-
     public LinkedList<Worker> getWorkersList(File file) throws Exception {
         Scanner scanner = new Scanner(file);
         XMLToObjectParser parser = new XMLToObjectParser();
@@ -243,6 +130,7 @@ public class WorkerParser implements Serializable {
                     }
 
                     fileData.remove(w);
+
 
                     if (workerMap.get("endDate") != null)
                         date = new SimpleDateFormat("dd-MM-yyyy").parse(workerMap.get("endDate"));

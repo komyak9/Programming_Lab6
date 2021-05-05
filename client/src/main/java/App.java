@@ -1,5 +1,5 @@
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
     public static final Logger logger = LoggerFactory.getLogger(App.class);

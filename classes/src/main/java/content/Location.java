@@ -54,7 +54,7 @@ public class Location implements Serializable {
         return "Location{" +
                 "x=" + x +
                 ", y=" + y +
-                ", name='" + name + '\'' +
+                ", name=" + name +
                 '}';
     }
 }

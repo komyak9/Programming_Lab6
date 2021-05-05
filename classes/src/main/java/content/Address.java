@@ -43,7 +43,7 @@ public class Address implements Serializable {
     @Override
     public String toString() {
         return "Address{" +
-                "zipCode='" + zipCode + '\'' +
+                "zipCode=" + zipCode +
                 ", town=" + town +
                 '}';
     }
